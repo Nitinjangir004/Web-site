@@ -1,0 +1,20 @@
+{
+  "name": "churanchacha-backend",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": ["churan", "candy", "indian", "sweets", "ecommerce", "backend"],
+  "author": "Churan Chacha Team",
+  "license": "ISC",
+  "description": "Backend API for Churan Chacha - Traditional Indian candy e-commerce platform",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "mongoose": "^8.15.0",
+    "nodemon": "^3.1.10"
+  }
+}
