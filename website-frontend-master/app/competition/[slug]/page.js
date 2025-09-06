@@ -15,15 +15,57 @@ const CompetitionRegistrationForm = ({ competitionId, competitionTitle, onSubmit
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [formErrors, setFormErrors] = useState({});
 
+useEffect(() => {
+    setFormData(prev => {
+      if (!prev.teamMembers) {
+        return {
+          ...prev,
+          teamMembers: [
+            { name: prev.teamLeaderName || '', email: prev.email || '', mobile: prev.mobile || '' },
+            { name: '', email: '', mobile: '' }
+          ]
+        };
+      }
+      if (prev.teamMembers.length && typeof prev.teamMembers[0] === 'string') {
+        const converted = prev.teamMembers.map((m) =>
+          typeof m === 'string' ? { name: m, email: '', mobile: '' } : m
+        );
+        while (converted.length < 2) converted.push({ name: '', email: '', mobile: '' });
+        return { ...prev, teamMembers: converted };
+      }
+      // ensure at least 2 members
+      if (prev.teamMembers.length < 2) {
+        const copy = [...prev.teamMembers];
+        while (copy.length < 2) copy.push({ name: '', email: '', mobile: '' });
+        return { ...prev, teamMembers: copy };
+      }
+      return prev;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+
+    // old
     // Auto-fill team leader in team members when team leader name changes
+    // const handleTeamLeaderChange = (e) => {
+    //   const leaderName = e.target.value;
+    //   setFormData(prev => ({
+    //     ...prev,
+    //     teamLeaderName: leaderName,
+    //     teamMembers: [leaderName, prev.teamMembers[1], ...prev.teamMembers.slice(2)]
+    //   }));
+    // };
+
+    //new
     const handleTeamLeaderChange = (e) => {
-      const leaderName = e.target.value;
-      setFormData(prev => ({
-        ...prev,
-        teamLeaderName: leaderName,
-        teamMembers: [leaderName, prev.teamMembers[1], ...prev.teamMembers.slice(2)]
-      }));
-    };
+    const leaderName = e.target.value;
+    setFormData(prev => {
+      const members = (prev.teamMembers || []).map(m => ({ ...(m || { name: '', email: '', mobile: '' }) }));
+      members[0] = { ...(members[0] || { email: prev.email || '', mobile: prev.mobile || '' }), name: leaderName };
+      return { ...prev, teamLeaderName: leaderName, teamMembers: members };
+    });
+    if (formErrors.teamLeaderName) setFormErrors(prev => ({ ...prev, teamLeaderName: '' }));
+  };
 
     const handleInputChange = (e) => {
       const { name, value, type, checked } = e.target;
@@ -40,33 +82,64 @@ const CompetitionRegistrationForm = ({ competitionId, competitionTitle, onSubmit
         }));
       }
     };
+///old
+    // const handleTeamMemberChange = (index, value) => {
+    //   setFormData(prev => ({
+    //     ...prev,
+    //     teamMembers: prev.teamMembers.map((member, i) =>
+    //       i === index ? value : member
+    //     )
+    //   }));
+    // };
 
-    const handleTeamMemberChange = (index, value) => {
-      setFormData(prev => ({
-        ...prev,
-        teamMembers: prev.teamMembers.map((member, i) =>
-          i === index ? value : member
-        )
-      }));
-    };
+    // const addTeamMember = () => {
+    //   if (formData.teamMembers.length < 6) {
+    //     setFormData(prev => ({
+    //       ...prev,
+    //       teamMembers: [...prev.teamMembers, '']
+    //     }));
+    //   }
+    // };
+    // const removeTeamMember = (index) => {
+    //   if (index > 1 && formData.teamMembers.length > 2) { // Can't remove first 2 members
+    //     setFormData(prev => ({
+    //       ...prev,
+    //       teamMembers: prev.teamMembers.filter((_, i) => i !== index)
+    //     }));
+    //   }
+    // };
 
-    const addTeamMember = () => {
-      if (formData.teamMembers.length < 6) {
-        setFormData(prev => ({
-          ...prev,
-          teamMembers: [...prev.teamMembers, '']
-        }));
+
+///new
+  const handleTeamMemberChange = (index, field, value) => {
+    setFormData(prev => {
+      const members = (prev.teamMembers || []).map(m => ({ ...(m || { name: '', email: '', mobile: '' }) }));
+      members[index] = { ...(members[index] || { name: '', email: '', mobile: '' }), [field]: value };
+      return { ...prev, teamMembers: members };
+    });
+    setFormErrors(prev => ({ ...prev, [`member${index}_${field}`]: '' }));
+  };
+
+  const addTeamMember = () => {
+    setFormData(prev => {
+      if ((prev.teamMembers || []).length >= 6) return prev;
+      return { ...prev, teamMembers: [...(prev.teamMembers || []), { name: '', email: '', mobile: '' }] };
+    });
+  };
+
+  const removeTeamMember = (index) => {
+    setFormData(prev => {
+      const members = [...(prev.teamMembers || [])];
+      if (index > 1 && members.length > 2) {
+        members.splice(index, 1);
+        return { ...prev, teamMembers: members };
       }
-    };
+      return prev;
+    });
+  };
+      
 
-    const removeTeamMember = (index) => {
-      if (index > 1 && formData.teamMembers.length > 2) { // Can't remove first 2 members
-        setFormData(prev => ({
-          ...prev,
-          teamMembers: prev.teamMembers.filter((_, i) => i !== index)
-        }));
-      }
-    };
+
 
     const validateForm = () => {
       const errors = {};
@@ -80,32 +153,72 @@ const CompetitionRegistrationForm = ({ competitionId, competitionTitle, onSubmit
       if (!formData.collegeName.trim()) errors.collegeName = 'College/Institution name is required';
       if (!formData.acceptTerms) errors.acceptTerms = 'You must accept the terms and conditions';
 
-      // Validate team members
-      const validMembers = formData.teamMembers.filter(member => member.trim());
-      if (validMembers.length < 2) errors.teamMembers = 'Minimum 2 team members required';
-      if (validMembers.length > 6) errors.teamMembers = 'Maximum 6 team members allowed';
-      if (!formData.teamMembers[1].trim()) errors.teamMember2 = 'Second team member name is required';
+      // Validate team members old
+      // const validMembers = formData.teamMembers.filter(member => member.trim());
+      // if (validMembers.length < 2) errors.teamMembers = 'Minimum 2 team members required';
+      // if (validMembers.length > 6) errors.teamMembers = 'Maximum 6 team members allowed';
+      // if (!formData.teamMembers[1].trim()) errors.teamMember2 = 'Second team member name is required';
 
+      //new
+      const members = formData.teamMembers || [];
+    const nonEmptyNames = members.filter(m => m?.name?.trim()).length;
+    if (nonEmptyNames < 2) errors.teamMembers = 'Minimum 2 team members required';
+
+    members.forEach((m, i) => {
+      if (i === 0 || i === 1 || m?.name?.trim()) {
+        if (!m?.name?.trim()) errors[`member${i}_name`] = `Member ${i + 1} name is required`;
+        if (!m?.email?.trim()) errors[`member${i}_email`] = `Member ${i + 1} email is required`;
+        else if (!/\S+@\S+\.\S+/.test(m.email)) errors[`member${i}_email`] = `Invalid email for Member ${i + 1}`;
+        if (!m?.mobile?.trim()) errors[`member${i}_mobile`] = `Member ${i + 1} mobile is required`;
+        else if (!/^\d{10}$/.test(m.mobile.replace(/\D/g, ''))) errors[`member${i}_mobile`] = `Invalid mobile for Member ${i + 1}`;
+      }
+    });
+
+       //old
       setFormErrors(errors);
       return Object.keys(errors).length === 0;
     };
+     // old
+    // const handleSubmit = async (e) => {
+    //   e.preventDefault();
 
+    //   if (!validateForm()) return;
+
+    //   setIsSubmitting(true);
+
+    //   // Simulate API call
+    //   setTimeout(() => {
+    //     onSubmit({
+    //       ...formData,
+    //       teamMembers: formData.teamMembers.filter(member => member.trim())
+    //     });
+    //     setIsSubmitting(false);
+    //   }, 1000);
+    // };
+
+    //new 
     const handleSubmit = async (e) => {
-      e.preventDefault();
+    e.preventDefault();
+    if (!validateForm()) return;
+    setIsSubmitting(true);
 
-      if (!validateForm()) return;
-
-      setIsSubmitting(true);
-
-      // Simulate API call
-      setTimeout(() => {
-        onSubmit({
-          ...formData,
-          teamMembers: formData.teamMembers.filter(member => member.trim())
-        });
-        setIsSubmitting(false);
-      }, 1000);
+    const members = (formData.teamMembers || []).filter(m => m.name?.trim());
+    const payload = {
+      ...formData,
+      teamMembers: members.map(m => ({
+        name: m.name.trim(),
+        email: m.email?.trim() || '',
+        mobile: m.mobile?.replace(/\D/g, '').trim() || ''
+      }))
     };
+
+    // call parent submit
+    setTimeout(() => {
+      onSubmit(payload);
+      setIsSubmitting(false);
+    }, 800);
+  };
+
 
     return (
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -177,8 +290,10 @@ const CompetitionRegistrationForm = ({ competitionId, competitionTitle, onSubmit
           {formErrors.mobile && <p className="text-red-500 text-xs mt-1 font-body">{formErrors.mobile}</p>}
         </div>
 
+        {/* //old */}
+
         {/* Team Members */}
-        <div>
+        {/* <div>
           <label className="block text-sm font-medium text-gray-700 mb-1 font-body">
             Team Members (Min 2, Max 6) *
           </label>
@@ -226,7 +341,74 @@ const CompetitionRegistrationForm = ({ competitionId, competitionTitle, onSubmit
           </div>
           {formErrors.teamMembers && <p className="text-red-500 text-xs mt-1 font-body">{formErrors.teamMembers}</p>}
           {formErrors.teamMember2 && <p className="text-red-500 text-xs mt-1 font-body">{formErrors.teamMember2}</p>}
+        </div> */}
+
+        {/* //new code  */}
+        <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1 font-body">
+          Team Members (Min 2, Max 6) *
+        </label>
+
+        <div className="space-y-4">
+          {formData.teamMembers.map((member, index) => (
+            <div key={index} className="border p-3 rounded-lg space-y-2 bg-gray-50">
+              <input
+                type="text"
+                value={member.name}
+                onChange={(e) => handleTeamMemberChange(index, 'name', e.target.value)}
+                disabled={index === 0}
+                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 font-body ${index === 0 ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+                placeholder={index === 0 ? 'Team Leader (auto-filled)' : `Team Member ${index + 1} Name`}
+              />
+              {formErrors[`member${index}_name`] && <p className="text-red-500 text-xs">{formErrors[`member${index}_name`]}</p>}
+
+              {index > 0 && (
+                <>
+                  <input
+                    type="email"
+                    value={member.email}
+                    onChange={(e) => handleTeamMemberChange(index, 'email', e.target.value)}
+                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 font-body"
+                    placeholder={`Member ${index + 1} Email`}
+                  />
+                  {formErrors[`member${index}_email`] && <p className="text-red-500 text-xs">{formErrors[`member${index}_email`]}</p>}
+
+                  <input
+                    type="tel"
+                    value={member.mobile}
+                    onChange={(e) => handleTeamMemberChange(index, 'mobile', e.target.value)}
+                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 font-body"
+                    placeholder={`Member ${index + 1} Mobile`}
+                  />
+                  {formErrors[`member${index}_mobile`] && <p className="text-red-500 text-xs">{formErrors[`member${index}_mobile`]}</p>}
+                </>
+              )}
+
+              {index > 1 && (
+                <button type="button" onClick={() => removeTeamMember(index)} className="text-red-500 text-sm">
+                  <X className="h-4 w-4 inline" /> Remove
+                </button>
+              )}
+            </div>
+          ))}
+
+          {formData.teamMembers.length < 6 && (
+            <button type="button" onClick={addTeamMember} className="w-full py-2 border-2 border-dashed border-primary-300 text-primary-600 hover:border-primary-500 hover:text-primary-700 rounded-lg transition-colors flex items-center justify-center gap-2 font-body">
+              <Plus className="h-4 w-4" /> Add Team Member
+            </button>
+          )}
         </div>
+
+        {formErrors.teamMembers && <p className="text-red-500 text-xs mt-1 font-body">{formErrors.teamMembers}</p>}
+      </div>
+
+
+
+
+
+
+
+
 
         {/* College/Institution Name */}
         <div>
@@ -281,7 +463,10 @@ export default function CompetitionDetailPage() {
     teamLeaderName: '',
     email: '',
     mobile: '',
-    teamMembers: ['', ''], // First will be auto-filled, second is required
+    teamMembers: [
+      { name: '', email: '', mobile: '' }, // leader (index 0)
+      { name: '', email: '', mobile: '' } 
+  ], // First will be auto-filled, second is required
     collegeName: '',
     acceptTerms: false
   });
@@ -317,7 +502,9 @@ export default function CompetitionDetailPage() {
             teamLeaderName: data.teamLeaderName,
             email: data.email,
             mobile: data.mobile,
-            teamMembers: data.teamMembers,
+            teamMembername: data.teamMembers.name,
+            teamMemberemail: data.teamMembers.email,
+            teamMembermobile: data.teamMembers.mobile,
             collegeName: data.collegeName,
             acceptTerms: data.acceptTerms
           },
