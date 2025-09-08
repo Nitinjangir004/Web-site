@@ -1,4 +1,22 @@
 const mongoose = require('mongoose');
+const TeamMemberSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  email: {
+    type: String,
+    trim: true,
+    lowercase: true,
+    match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, 'Please enter a valid email']
+  },
+  mobile: {
+    type: String,
+    trim: true,
+    match: [/^[0-9]{10}$/, 'Please enter a valid 10-digit mobile number']
+  }
+});
 
 const CompetitionRegistrationSchema = new mongoose.Schema({
   competitionId: {
@@ -35,10 +53,12 @@ const CompetitionRegistrationSchema = new mongoose.Schema({
       trim: true,
       match: [/^[0-9]{10}$/, 'Please enter a valid 10-digit mobile number']
     },
-    teamMembers: [{
-      type: String,
-      trim: true
-    }],
+    teamMembers:{
+      type: [TeamMemberSchema],
+      validate: {
+        validator: (arr) => Array.isArray(arr) && arr.length >= 2 && arr.length <= 6,
+        message: 'Team must have between 2 and 6 members'
+      }},
     collegeName: {
       type: String,
       required: true,

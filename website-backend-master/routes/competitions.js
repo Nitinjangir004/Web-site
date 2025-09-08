@@ -462,7 +462,13 @@ router.post('/:id/register', async (req, res) => {
         teamLeaderName: teamLeaderName.trim(),
         email: email.trim().toLowerCase(),
         mobile: mobile.trim(),
-        teamMembers: teamMembers.filter(member => member && member.trim()).map(member => member.trim()),
+        teamMembers: teamMembers
+      .filter(member => member && member.name?.trim()) // ensure member has name
+      .map(member => ({
+        name: member.name.trim(),
+        email: member.email?.trim().toLowerCase() || null,
+        mobile: member.mobile?.trim() || null
+      })),
         collegeName: collegeName.trim(),
         acceptTerms
       },

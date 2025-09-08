@@ -198,23 +198,23 @@ useEffect(() => {
 
     //new 
     const handleSubmit = async (e) => {
+       console.log("Form submitted", formData);
     e.preventDefault();
-    if (!validateForm()) return;
-    setIsSubmitting(true);
+const isValid = validateForm();
+console.log("Form valid?", isValid, formErrors);
+if (!isValid) return;    setIsSubmitting(true);
 
     const members = (formData.teamMembers || []).filter(m => m.name?.trim());
-    const payload = {
+    // call parent submit
+    setTimeout(() => {
+      onSubmit({
       ...formData,
       teamMembers: members.map(m => ({
         name: m.name.trim(),
         email: m.email?.trim() || '',
         mobile: m.mobile?.replace(/\D/g, '').trim() || ''
       }))
-    };
-
-    // call parent submit
-    setTimeout(() => {
-      onSubmit(payload);
+    });
       setIsSubmitting(false);
     }, 800);
   };
@@ -357,7 +357,7 @@ useEffect(() => {
                 value={member.name}
                 onChange={(e) => handleTeamMemberChange(index, 'name', e.target.value)}
                 disabled={index === 0}
-                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 font-body ${index === 0 ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+                className={`w-full text-black px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 font-body ${index === 0 ? 'bg-gray-100 cursor-not-allowed' : ''}`}
                 placeholder={index === 0 ? 'Team Leader (auto-filled)' : `Team Member ${index + 1} Name`}
               />
               {formErrors[`member${index}_name`] && <p className="text-red-500 text-xs">{formErrors[`member${index}_name`]}</p>}
@@ -489,7 +489,8 @@ export default function CompetitionDetailPage() {
 
   const handleRegistration = async (data) => {
     try {
-      const response = await fetch(`https://api.churanchacha.in/api/competitions/${competition.id}/register`, {
+      // const response = await fetch(`https://api.churanchacha.in/api/competitions/${competition.id}/register`, {
+      const response = await fetch(`http://localhost:7500/api/competitions/${competition.id}/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -502,9 +503,7 @@ export default function CompetitionDetailPage() {
             teamLeaderName: data.teamLeaderName,
             email: data.email,
             mobile: data.mobile,
-            teamMembername: data.teamMembers.name,
-            teamMemberemail: data.teamMembers.email,
-            teamMembermobile: data.teamMembers.mobile,
+            teamMembers: data.teamMembers,
             collegeName: data.collegeName,
             acceptTerms: data.acceptTerms
           },
