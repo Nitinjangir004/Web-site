@@ -65,15 +65,12 @@ useEffect(() => {
     const newValue = type === 'checkbox' ? checked : value;
     const updated = { ...prev, [name]: newValue };
 
-
     if (name === 'email' || name === 'mobile') {
     const members = (prev.teamMembers || []).map(m => ({ ...(m || { name: prev.teamLeaderName || '', email: '', mobile: '' }) }));
     const member0 = { ...(members[0] || { name: prev.teamLeaderName || '', email: prev.email || '', mobile: prev.mobile || '' }) };
 
-
     if (name === 'email') member0.email = newValue;
     if (name === 'mobile') member0.mobile = newValue;
-
 
     members[0] = member0;
     updated.teamMembers = members;
@@ -350,7 +347,7 @@ return updated;
 
 export default function CompetitionDetailPage() {
   const [activeTab, setActiveTab] = useState('overview');
-  const [isRegistered, setIsRegistered] = useState(false);
+  const [isRegistered, setIsRegistered] = useState(true);
   const [formData, setFormData] = useState({
     teamName: '',
     teamLeaderName: '',
@@ -561,9 +558,16 @@ const ShareButton = () => {
                 <Bookmark className="h-4 w-4" />
                 Save
               </button> */}
+              {isRegistered ? (<><button className="bg-green-200 hover:bg-green-300 text-gray-700 px-4 py-2 md:px-6 rounded-lg font-medium transition-colors flex items-center gap-2 font-body text-sm md:text-base"> 
+                Registered
+              </button>
+              <div className="bg-green-50 text-green-700 p-2 rounded-lg flex items-center gap-2">
+                  <CheckCircle className="h-5 w-5" />
+                  <span className="font-body">You have successfully registered for this competition!</span>
+                </div></>):(
               <button className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 md:px-6 rounded-lg font-medium transition-colors flex items-center gap-2 font-body text-sm md:text-base">
                 Register Now
-              </button>
+              </button>)}
             </div>
           </div>
         </div>
