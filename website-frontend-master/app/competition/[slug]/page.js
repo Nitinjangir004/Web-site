@@ -14,103 +14,53 @@ import { fetchCompetitionBySlug } from '../../../store/competition/competitionAc
 const CompetitionRegistrationForm = ({ competitionId, competitionTitle, onSubmit, formData, setFormData }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [formErrors, setFormErrors] = useState({});
-
 useEffect(() => {
-    setFormData(prev => {
-      if (!prev.teamMembers) {
-        return {
-          ...prev,
-          teamMembers: [
-            { name: prev.teamLeaderName || '', email: prev.email || '', mobile: prev.mobile || '' },
-            { name: '', email: '', mobile: '' }
-          ]
-        };
-      }
-      if (prev.teamMembers.length && typeof prev.teamMembers[0] === 'string') {
-        const converted = prev.teamMembers.map((m) =>
-          typeof m === 'string' ? { name: m, email: '', mobile: '' } : m
-        );
-        while (converted.length < 2) converted.push({ name: '', email: '', mobile: '' });
-        return { ...prev, teamMembers: converted };
-      }
-      // ensure at least 2 members
-      if (prev.teamMembers.length < 2) {
-        const copy = [...prev.teamMembers];
-        while (copy.length < 2) copy.push({ name: '', email: '', mobile: '' });
-        return { ...prev, teamMembers: copy };
-      }
-      return prev;
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  setFormData(prev => {
+    if (!prev.teamMembers || !prev.teamMembers.length) {
+      return {
+        ...prev,
+        teamMembers: [
+          { name: prev.teamLeaderName || '', email: prev.email || '', mobile: prev.mobile || '' },
+          { name: '', email: '', mobile: '' }
+        ]
+      };
+    }
+    return prev; // agar already sahi hai toh dobara overwrite mat karo
+  });
+}, []);
 
-
-    // old
     // Auto-fill team leader in team members when team leader name changes
-    // const handleTeamLeaderChange = (e) => {
-    //   const leaderName = e.target.value;
-    //   setFormData(prev => ({
-    //     ...prev,
-    //     teamLeaderName: leaderName,
-    //     teamMembers: [leaderName, prev.teamMembers[1], ...prev.teamMembers.slice(2)]
-    //   }));
-    // };
-
-    //new
     const handleTeamLeaderChange = (e) => {
     const leaderName = e.target.value;
     setFormData(prev => {
       const members = (prev.teamMembers || []).map(m => ({ ...(m || { name: '', email: '', mobile: '' }) }));
-      members[0] = { ...(members[0] || { email: prev.email || '', mobile: prev.mobile || '' }), name: leaderName };
+      members[0] = { ...(members[0] || { email: prev.email || '', mobile: prev.mobile || '' }), name: leaderName} //om working
       return { ...prev, teamLeaderName: leaderName, teamMembers: members };
     });
     if (formErrors.teamLeaderName) setFormErrors(prev => ({ ...prev, teamLeaderName: '' }));
   };
 
     const handleInputChange = (e) => {
-      const { name, value, type, checked } = e.target;
-      setFormData(prev => ({
-        ...prev,
-        [name]: type === 'checkbox' ? checked : value
-      }));
+  const { name, value, type, checked } = e.target;
+  const newValue = type === 'checkbox' ? checked : value;
 
-      // Clear error when user starts typing
-      if (formErrors[name]) {
-        setFormErrors(prev => ({
-          ...prev,
-          [name]: ''
-        }));
-      }
-    };
-///old
-    // const handleTeamMemberChange = (index, value) => {
-    //   setFormData(prev => ({
-    //     ...prev,
-    //     teamMembers: prev.teamMembers.map((member, i) =>
-    //       i === index ? value : member
-    //     )
-    //   }));
-    // };
+  setFormData(prev => ({
+    ...prev,
+    [name]: newValue,  // sirf jo change ho raha hai wahi update hoga
+    teamMembers:
+      name === 'email' || name === 'mobile'
+        ? prev.teamMembers.map((m, i) =>
+            i === 0 ? { ...m, [name]: newValue } : m
+          )
+        : prev.teamMembers
+  }));
 
-    // const addTeamMember = () => {
-    //   if (formData.teamMembers.length < 6) {
-    //     setFormData(prev => ({
-    //       ...prev,
-    //       teamMembers: [...prev.teamMembers, '']
-    //     }));
-    //   }
-    // };
-    // const removeTeamMember = (index) => {
-    //   if (index > 1 && formData.teamMembers.length > 2) { // Can't remove first 2 members
-    //     setFormData(prev => ({
-    //       ...prev,
-    //       teamMembers: prev.teamMembers.filter((_, i) => i !== index)
-    //     }));
-    //   }
-    // };
+  if (formErrors[name]) {
+    setFormErrors(prev => ({ ...prev, [name]: '' }));
+  }
+};
 
 
-///new
   const handleTeamMemberChange = (index, field, value) => {
     setFormData(prev => {
       const members = (prev.teamMembers || []).map(m => ({ ...(m || { name: '', email: '', mobile: '' }) }));
@@ -138,9 +88,6 @@ useEffect(() => {
     });
   };
       
-
-
-
     const validateForm = () => {
       const errors = {};
 
@@ -153,13 +100,6 @@ useEffect(() => {
       if (!formData.collegeName.trim()) errors.collegeName = 'College/Institution name is required';
       if (!formData.acceptTerms) errors.acceptTerms = 'You must accept the terms and conditions';
 
-      // Validate team members old
-      // const validMembers = formData.teamMembers.filter(member => member.trim());
-      // if (validMembers.length < 2) errors.teamMembers = 'Minimum 2 team members required';
-      // if (validMembers.length > 6) errors.teamMembers = 'Maximum 6 team members allowed';
-      // if (!formData.teamMembers[1].trim()) errors.teamMember2 = 'Second team member name is required';
-
-      //new
       const members = formData.teamMembers || [];
     const nonEmptyNames = members.filter(m => m?.name?.trim()).length;
     if (nonEmptyNames < 2) errors.teamMembers = 'Minimum 2 team members required';
@@ -174,36 +114,15 @@ useEffect(() => {
       }
     });
 
-       //old
       setFormErrors(errors);
       return Object.keys(errors).length === 0;
     };
-     // old
-    // const handleSubmit = async (e) => {
-    //   e.preventDefault();
-
-    //   if (!validateForm()) return;
-
-    //   setIsSubmitting(true);
-
-    //   // Simulate API call
-    //   setTimeout(() => {
-    //     onSubmit({
-    //       ...formData,
-    //       teamMembers: formData.teamMembers.filter(member => member.trim())
-    //     });
-    //     setIsSubmitting(false);
-    //   }, 1000);
-    // };
-
-    //new 
+     
     const handleSubmit = async (e) => {
-       console.log("Form submitted", formData);
-    e.preventDefault();
-const isValid = validateForm();
-console.log("Form valid?", isValid, formErrors);
-if (!isValid) return;    setIsSubmitting(true);
-
+      e.preventDefault();
+      const isValid = validateForm();
+      console.log("Form valid?", isValid, formErrors);
+      if (!isValid) return;    setIsSubmitting(true);
     const members = (formData.teamMembers || []).filter(m => m.name?.trim());
     // call parent submit
     setTimeout(() => {
@@ -218,7 +137,6 @@ if (!isValid) return;    setIsSubmitting(true);
       setIsSubmitting(false);
     }, 800);
   };
-
 
     return (
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -289,61 +207,7 @@ if (!isValid) return;    setIsSubmitting(true);
           />
           {formErrors.mobile && <p className="text-red-500 text-xs mt-1 font-body">{formErrors.mobile}</p>}
         </div>
-
-        {/* //old */}
-
-        {/* Team Members */}
-        {/* <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1 font-body">
-            Team Members (Min 2, Max 6) *
-          </label>
-          <div className="space-y-2">
-            {formData.teamMembers.map((member, index) => (
-              <div key={index} className="flex items-center gap-2">
-                <div className="flex-1">
-                  <input
-                    type="text"
-                    value={member}
-                    onChange={(e) => handleTeamMemberChange(index, e.target.value)}
-                    disabled={index === 0} // First member (leader) is auto-filled and non-editable
-                    className={`w-full text-primary-10 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 font-body ${index === 0 ? 'bg-gray-100 cursor-not-allowed' : ''
-                      }`}
-                    placeholder={
-                      index === 0 ? 'Team Leader (auto-filled)' :
-                        index === 1 ? 'Team Member 2 (required)' :
-                          `Team Member ${index + 1} (optional)`
-                    }
-                  />
-                </div>
-                {index > 1 && (
-                  <button
-                    type="button"
-                    onClick={() => removeTeamMember(index)}
-                    className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
-                    aria-label={`Remove team member ${index + 1}`}
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
-                )}
-              </div>
-            ))}
-
-            {formData.teamMembers.length < 6 && (
-              <button
-                type="button"
-                onClick={addTeamMember}
-                className="w-full py-2 border-2 border-dashed border-primary-300 text-primary-600 hover:border-primary-500 hover:text-primary-700 rounded-lg transition-colors flex items-center justify-center gap-2 font-body"
-              >
-                <Plus className="h-4 w-4" />
-                Add Team Member
-              </button>
-            )}
-          </div>
-          {formErrors.teamMembers && <p className="text-red-500 text-xs mt-1 font-body">{formErrors.teamMembers}</p>}
-          {formErrors.teamMember2 && <p className="text-red-500 text-xs mt-1 font-body">{formErrors.teamMember2}</p>}
-        </div> */}
-
-        {/* //new code  */}
+        {/* Team Member */}
         <div>
         <label className="block text-sm font-medium text-gray-700 mb-1 font-body">
           Team Members (Min 2, Max 6) *
@@ -351,7 +215,7 @@ if (!isValid) return;    setIsSubmitting(true);
 
         <div className="space-y-4">
           {formData.teamMembers.map((member, index) => (
-            <div key={index} className="border p-3 rounded-lg space-y-2 bg-gray-50">
+            < div key={index} className="border p-3 rounded-lg space-y-2 bg-gray-50">
               <input
                 type="text"
                 value={member.name}
@@ -362,13 +226,14 @@ if (!isValid) return;    setIsSubmitting(true);
               />
               {formErrors[`member${index}_name`] && <p className="text-red-500 text-xs">{formErrors[`member${index}_name`]}</p>}
 
-              {index > 0 && (
-                <>
+              {/* {index > 0 && (
+                <> */}
                   <input
                     type="email"
                     value={member.email}
+                    disabled={index === 0}
                     onChange={(e) => handleTeamMemberChange(index, 'email', e.target.value)}
-                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 font-body"
+                    className="w-full text-black px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 font-body"
                     placeholder={`Member ${index + 1} Email`}
                   />
                   {formErrors[`member${index}_email`] && <p className="text-red-500 text-xs">{formErrors[`member${index}_email`]}</p>}
@@ -376,13 +241,14 @@ if (!isValid) return;    setIsSubmitting(true);
                   <input
                     type="tel"
                     value={member.mobile}
+                    disabled={index === 0}
                     onChange={(e) => handleTeamMemberChange(index, 'mobile', e.target.value)}
-                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 font-body"
+                    className="w-full text-black px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 font-body"
                     placeholder={`Member ${index + 1} Mobile`}
                   />
                   {formErrors[`member${index}_mobile`] && <p className="text-red-500 text-xs">{formErrors[`member${index}_mobile`]}</p>}
-                </>
-              )}
+                {/* </>
+              )} */}
 
               {index > 1 && (
                 <button type="button" onClick={() => removeTeamMember(index)} className="text-red-500 text-sm">
@@ -401,14 +267,6 @@ if (!isValid) return;    setIsSubmitting(true);
 
         {formErrors.teamMembers && <p className="text-red-500 text-xs mt-1 font-body">{formErrors.teamMembers}</p>}
       </div>
-
-
-
-
-
-
-
-
 
         {/* College/Institution Name */}
         <div>
@@ -449,14 +307,43 @@ if (!isValid) return;    setIsSubmitting(true);
           disabled={isSubmitting}
           className="w-full bg-primary-600 hover:bg-primary-700 disabled:bg-primary-400 text-white py-3 px-6 rounded-lg font-medium transition-colors font-body"
         >
-          {isSubmitting ? 'Registering...' : 'Register Now'}
+          {isSubmitting ? 'Registering...'  : 'Register Now'}
         </button>
       </form>
     );
   };
 
+  // PopupWindow.js (new file bana le ya same file ke top pe define kar le)
+ const PopupWindow = ({ showPopup, setShowPopup, competition, formData, setFormData, handleRegistration }) => {
+  if (!showPopup) return null;
+  return (
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+      <div className="bg-white rounded-lg shadow-lg w-full max-w-lg h-[80vh] overflow-y-auto relative p-6">
+        {/* Close Button */}
+        <button
+          onClick={() => setShowPopup(false)}
+          className="absolute top-3 right-3 text-gray-600 hover:text-black"
+        >
+          ✕
+        </button>
+
+        <CompetitionRegistrationForm
+          competitionId={competition.id}
+          competitionTitle={competition.title}
+          onSubmit={handleRegistration}
+          formData={formData}
+          setFormData={setFormData}
+        />
+      </div>
+    </div>
+  );
+};
+
+
 export default function CompetitionDetailPage() {
   const [activeTab, setActiveTab] = useState('overview');
+  const [showPopup , setshowPopup] = useState(false);
+  const [showCard , setshowCard] = useState(false);
   const [isRegistered, setIsRegistered] = useState(false);
   const [formData, setFormData] = useState({
     teamName: '',
@@ -519,6 +406,8 @@ export default function CompetitionDetailPage() {
       
       if (result.success) {
         setIsRegistered(true);
+        setshowPopup(false);
+        setshowCard(true);
         console.log('Registration successful:', result.data);
         // You could also show a success toast/notification here
       } else {
@@ -596,6 +485,44 @@ const ShareButton = () => {
   );
 };
 
+  const ThanksCard = ({teamName})=>{
+    return (<> {showCard && (<div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 text-center relative animate-fadeIn">
+        
+        {/* Close Button */}
+        <button
+          onClick={()=>{setshowCard(false)}}
+          className="absolute top-3 right-3 text-gray-500 hover:text-black"
+        >
+          ✕
+        </button>
+
+        {/* Success Icon */}
+        <div className="flex justify-center mb-4">
+          <CheckCircle className="w-16 h-16 text-green-500" />
+        </div>
+
+        {/* Message */}
+        <h2 className="text-xl font-semibold text-gray-800">
+           Hey! Team <span className="font-bold text-purple-600">{teamName}</span>, 
+        </h2>
+        <h3 className="mt-2 text-gray-600">Thank you for registering!</h3>
+        <p className="mt-1 text-gray-500 text-sm">
+          We’ll get back to you shortly with the next steps.
+        </p>
+
+        {/* Button */}
+        <button
+          onClick={()=>{setshowCard(false)}}
+          className="mt-6 px-6 py-2 bg-primary-600 text-white rounded-lg   hover:bg-primary-700 transition"
+        >
+          Close
+        </button>
+      </div>
+    </div>)}</>
+    )
+  }
+
   return (
     <div className="py-4 md:py-12">
       <div className="container mx-auto px-4">
@@ -668,13 +595,30 @@ const ShareButton = () => {
                 <Bookmark className="h-4 w-4" />
                 Save
               </button> */}
-              <button className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 md:px-6 rounded-lg font-medium transition-colors flex items-center gap-2 font-body text-sm md:text-base">
-                Register Now
+              {isRegistered ? (<><button  className="bg-green-200 hover:bg-green-300 text-gray-700 px-4 py-2 md:px-6 rounded-lg font-medium transition-colors flex items-center gap-2 font-body text-sm md:text-base"> 
+                Registered
               </button>
+              <div className="bg-green-50 text-green-700 p-2 rounded-lg flex items-center gap-2">
+                  <CheckCircle className="h-5 w-5" />
+                  <span className="font-body">You have successfully registered for this competition!</span>
+                </div></>):(
+              <button onClick={()=>{setshowPopup(true)}} className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 md:px-6 rounded-lg font-medium transition-colors flex items-center gap-2 font-body text-sm md:text-base">
+                Register Now
+              </button>)}
             </div>
           </div>
         </div>
-
+        <PopupWindow
+                  showPopup={showPopup}
+                  setShowPopup={setshowPopup}
+                  competition={competition}
+                  formData={formData}
+                  setFormData={setFormData}
+                  handleRegistration={handleRegistration}
+              />
+                <ThanksCard
+                 teamName={formData.teamName || "Your Team"}
+                />
         {/* Main Content */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
           {/* Left Column: Competition Details */}
@@ -770,7 +714,7 @@ const ShareButton = () => {
           </div>
 
           {/* Right Column: Registration Form */}
-          <div className="lg:col-span-1 order-2 lg:order-2">
+          <div className="lg:col-span-1 order-2 lg:order-2 sticky">
             <div className="bg-white rounded-xl shadow-sm p-4 md:p-6 sticky top-8">
               <div className="mb-4 md:mb-6">
                 <h2 className="text-lg md:text-xl text-primary-10 mb-2 font-heading">Prize Pool</h2>
@@ -794,7 +738,7 @@ const ShareButton = () => {
                 </div>
               </div>
 
-              {isRegistered ? (
+              {/* {isRegistered ? (
                 <div className="bg-green-50 text-green-700 p-4 rounded-lg flex items-center gap-2">
                   <CheckCircle className="h-5 w-5" />
                   <span className="font-body">You have successfully registered for this competition!</span>
@@ -807,7 +751,7 @@ const ShareButton = () => {
                   formData={formData}
                   setFormData={setFormData}
                 />
-              )}
+              )} */}
             </div>
           </div>
         </div>
