@@ -1,0 +1,100 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: var(--font-montserrat), 'Montserrat', sans-serif;
+}
+
+/* Font families */
+.font-heading {
+  font-family: 'Comic Sans MS', var(--font-kalam), 'Kalam', cursive !important;
+}
+
+.font-body {
+  font-family: var(--font-montserrat), 'Montserrat', sans-serif !important;
+}
+
+/* Hero Carousel Mobile Optimizations */
+.hero-carousel-fullscreen .slick-dots {
+  bottom: 15px !important;
+}
+
+.hero-carousel-fullscreen .slick-dots li button:before {
+  font-size: 8px !important;
+  color: white !important;
+  opacity: 0.6;
+}
+
+.hero-carousel-fullscreen .slick-dots li.slick-active button:before {
+  opacity: 1;
+  color: white !important;
+}
+
+/* Mobile-specific improvements */
+@media (max-width: 768px) {
+  .hero-carousel-fullscreen .slick-dots {
+    bottom: 10px !important;
+  }
+  
+  .hero-carousel-fullscreen .slick-dots li {
+    margin: 0 2px !important;
+  }
+  
+  .hero-carousel-fullscreen .slick-dots li button:before {
+    font-size: 6px !important;
+  }
+  
+  /* Ensure mobile images maintain aspect ratio */
+  .carousel-slide-fullscreen img {
+    object-position: center center;
+  }
+}
+
+/* Improve mobile touch interactions */
+@media (hover: none) and (pointer: coarse) {
+  .hero-carousel-fullscreen .slick-arrow {
+    opacity: 0.8 !important;
+  }
+  
+  .hero-carousel-fullscreen .slick-arrow:active {
+    transform: scale(0.95);
+  }
+}
+
+/* Mobile Form Optimizations */
+@media (max-width: 768px) {
+  /* Ensure inputs have minimum height for touch */
+  input[type="text"],
+  input[type="email"], 
+  input[type="tel"],
+  textarea,
+  select {
+    min-height: 44px !important;
+    font-size: 16px !important; /* Prevents zoom on iOS */
+  }
+  
+  /* Scrollable tabs */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
