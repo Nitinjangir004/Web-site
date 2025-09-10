@@ -14,36 +14,20 @@ import { fetchCompetitionBySlug } from '../../../store/competition/competitionAc
 const CompetitionRegistrationForm = ({ competitionId, competitionTitle, onSubmit, formData, setFormData }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [formErrors, setFormErrors] = useState({});
-
 useEffect(() => {
-    setFormData(prev => {
-      if (!prev.teamMembers) {
-        return {
-          ...prev,
-          teamMembers: [
-            { name: prev.teamLeaderName || '', email: prev.email || '', mobile: prev.mobile || '' },
-            { name: '', email: '', mobile: '' }
-          ]
-        };
-      }
-      if (prev.teamMembers.length && typeof prev.teamMembers[0] === 'string') {
-        const converted = prev.teamMembers.map((m) =>
-          typeof m === 'string' ? { name: m, email: '', mobile: '' } : m
-        );
-        while (converted.length < 2) converted.push({ name: '', email: '', mobile: '' });
-        return { ...prev, teamMembers: converted };
-      }
-      // ensure at least 2 members
-      if (prev.teamMembers.length < 2) {
-        const copy = [...prev.teamMembers];
-        while (copy.length < 2) copy.push({ name: '', email: '', mobile: '' });
-        return { ...prev, teamMembers: copy };
-      }
-      return prev;
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
+  setFormData(prev => {
+    if (!prev.teamMembers || !prev.teamMembers.length) {
+      return {
+        ...prev,
+        teamMembers: [
+          { name: prev.teamLeaderName || '', email: prev.email || '', mobile: prev.mobile || '' },
+          { name: '', email: '', mobile: '' }
+        ]
+      };
+    }
+    return prev; // agar already sahi hai toh dobara overwrite mat karo
+  });
+}, []);
 
     // Auto-fill team leader in team members when team leader name changes
     const handleTeamLeaderChange = (e) => {
@@ -56,38 +40,26 @@ useEffect(() => {
     if (formErrors.teamLeaderName) setFormErrors(prev => ({ ...prev, teamLeaderName: '' }));
   };
 
-
     const handleInputChange = (e) => {
-    const { name, value, type, checked } = e.target;
+  const { name, value, type, checked } = e.target;
+  const newValue = type === 'checkbox' ? checked : value;
 
-// Update formData and also mirror leader email/mobile into teamMembers[0]
-  setFormData(prev => {
-    const newValue = type === 'checkbox' ? checked : value;
-    const updated = { ...prev, [name]: newValue };
+  setFormData(prev => ({
+    ...prev,
+    [name]: newValue,  // sirf jo change ho raha hai wahi update hoga
+    teamMembers:
+      name === 'email' || name === 'mobile'
+        ? prev.teamMembers.map((m, i) =>
+            i === 0 ? { ...m, [name]: newValue } : m
+          )
+        : prev.teamMembers
+  }));
 
-    if (name === 'email' || name === 'mobile') {
-    const members = (prev.teamMembers || []).map(m => ({ ...(m || { name: prev.teamLeaderName || '', email: '', mobile: '' }) }));
-    const member0 = { ...(members[0] || { name: prev.teamLeaderName || '', email: prev.email || '', mobile: prev.mobile || '' }) };
+  if (formErrors[name]) {
+    setFormErrors(prev => ({ ...prev, [name]: '' }));
+  }
+};
 
-    if (name === 'email') member0.email = newValue;
-    if (name === 'mobile') member0.mobile = newValue;
-
-    members[0] = member0;
-    updated.teamMembers = members;
-}
-
-
-return updated;
-});
-
-      // Clear error when user starts typing
-      if (formErrors[name]) {
-        setFormErrors(prev => ({
-          ...prev,
-          [name]: ''
-        }));
-      }
-    };
 
   const handleTeamMemberChange = (index, field, value) => {
     setFormData(prev => {
@@ -116,9 +88,6 @@ return updated;
     });
   };
       
-
-
-
     const validateForm = () => {
       const errors = {};
 
@@ -168,7 +137,6 @@ return updated;
       setIsSubmitting(false);
     }, 800);
   };
-
 
     return (
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -254,7 +222,7 @@ return updated;
                 onChange={(e) => handleTeamMemberChange(index, 'name', e.target.value)}
                 disabled={index === 0}
                 className={`w-full text-black px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 font-body ${index === 0 ? 'bg-gray-100 cursor-not-allowed' : ''}`}
-                placeholder={index === 0 ? 'Team Leader (auto-filled)' : `Team Member ${index + 1} Name`}
+                placeholder={index === 0 ? 'Team Leader Name (auto-filled)' : `Team Member ${index + 1} Name`}
               />
               {formErrors[`member${index}_name`] && <p className="text-red-500 text-xs">{formErrors[`member${index}_name`]}</p>}
 
@@ -265,8 +233,8 @@ return updated;
                     value={member.email}
                     disabled={index === 0}
                     onChange={(e) => handleTeamMemberChange(index, 'email', e.target.value)}
-                    className="w-full text-black px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 font-body"
-                    placeholder={`Member ${index + 1} Email`}
+                    className={`w-full text-black px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 font-body ${index === 0 ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+                    placeholder={index === 0 ? `Team Member ${index + 1} Email (auto-filled)` : `Team Member ${index + 1} Email`}
                   />
                   {formErrors[`member${index}_email`] && <p className="text-red-500 text-xs">{formErrors[`member${index}_email`]}</p>}
 
@@ -275,8 +243,8 @@ return updated;
                     value={member.mobile}
                     disabled={index === 0}
                     onChange={(e) => handleTeamMemberChange(index, 'mobile', e.target.value)}
-                    className="w-full text-black px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 font-body"
-                    placeholder={`Member ${index + 1} Mobile`}
+                    className={`w-full text-black px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 font-body ${index === 0 ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+                    placeholder={index === 0 ? `Team Member ${index + 1} Mobile (auto-filled)` : `Team Member ${index + 1} Mobile`}
                   />
                   {formErrors[`member${index}_mobile`] && <p className="text-red-500 text-xs">{formErrors[`member${index}_mobile`]}</p>}
                 {/* </>
@@ -339,15 +307,44 @@ return updated;
           disabled={isSubmitting}
           className="w-full bg-primary-600 hover:bg-primary-700 disabled:bg-primary-400 text-white py-3 px-6 rounded-lg font-medium transition-colors font-body"
         >
-          {isSubmitting ? 'Registering...' : 'Register Now'}
+          {isSubmitting ? 'Registering...'  : 'Register Now'}
         </button>
       </form>
     );
   };
 
+  // PopupWindow.js (new file bana le ya same file ke top pe define kar le)
+ const PopupWindow = ({ showPopup, setShowPopup, competition, formData, setFormData, handleRegistration }) => {
+  if (!showPopup) return null;
+  return (
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+      <div className="bg-white rounded-lg shadow-lg w-full max-w-lg h-[80vh] overflow-y-auto relative p-6">
+        {/* Close Button */}
+        <button
+          onClick={() => setShowPopup(false)}
+          className="absolute top-3 right-3 text-gray-600 hover:text-black"
+        >
+          ✕
+        </button>
+
+        <CompetitionRegistrationForm
+          competitionId={competition.id}
+          competitionTitle={competition.title}
+          onSubmit={handleRegistration}
+          formData={formData}
+          setFormData={setFormData}
+        />
+      </div>
+    </div>
+  );
+};
+
+
 export default function CompetitionDetailPage() {
   const [activeTab, setActiveTab] = useState('overview');
-  const [isRegistered, setIsRegistered] = useState(true);
+  const [showPopup , setshowPopup] = useState(false);
+  const [showCard , setshowCard] = useState(false);
+  const [isRegistered, setIsRegistered] = useState(false);
   const [formData, setFormData] = useState({
     teamName: '',
     teamLeaderName: '',
@@ -409,6 +406,8 @@ export default function CompetitionDetailPage() {
       
       if (result.success) {
         setIsRegistered(true);
+        setshowPopup(false);
+        setshowCard(true);
         console.log('Registration successful:', result.data);
         // You could also show a success toast/notification here
       } else {
@@ -486,8 +485,46 @@ const ShareButton = () => {
   );
 };
 
+  const ThanksCard = ({teamName})=>{
+    return (<> {showCard && (<div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 text-center relative animate-fadeIn">
+        
+        {/* Close Button */}
+        <button
+          onClick={()=>{setshowCard(false)}}
+          className="absolute top-3 right-3 text-gray-500 hover:text-black"
+        >
+          ✕
+        </button>
+
+        {/* Success Icon */}
+        <div className="flex justify-center mb-4">
+          <CheckCircle className="w-16 h-16 text-green-500" />
+        </div>
+
+        {/* Message */}
+        <h2 className="text-xl font-semibold text-gray-800">
+           Hey! Team <span className="font-bold text-purple-600">{teamName}</span>, 
+        </h2>
+        <h3 className="mt-2 text-gray-600">Thank you for registering!</h3>
+        <p className="mt-1 text-gray-500 text-sm">
+          We’ll get back to you shortly with the next steps.
+        </p>
+
+        {/* Button */}
+        <button
+          onClick={()=>{setshowCard(false)}}
+          className="mt-6 px-6 py-2 bg-primary-600 text-white rounded-lg   hover:bg-primary-700 transition"
+        >
+          Close
+        </button>
+      </div>
+    </div>)}</>
+    )
+  }
+
   return (
-    <div className="py-4 md:py-12">
+    <div className="py-4 md:py-8">
       <div className="container mx-auto px-4">
         {/* Back Button */}
         <Link
@@ -500,14 +537,14 @@ const ShareButton = () => {
 
         {/* Hero Section */}
         <div className="bg-white rounded-2xl shadow-lg overflow-hidden mb-6 md:mb-8">
-          <div className="relative h-[250px] md:h-[500px] bg-gray-100">
+          <div className="relative h-[50vw] md:h-[28vw] bg-gray-100">
             {/* Mobile Image - Shows only on mobile */}
             <Image
               src={competition.mobileImage || competition.image}
               alt={competition.title}
               fill
               sizes="100vw"
-              className="object-cover block md:hidden"
+              className="object-fill block md:hidden"
               priority
               onError={(e) => {
                 e.currentTarget.style.display = 'none';
@@ -519,7 +556,7 @@ const ShareButton = () => {
               alt={competition.title}
               fill
               sizes="100vw"
-              className="object-cover hidden md:block"
+              className="object-fill hidden md:block cover"
               priority
               onError={(e) => {
                 e.currentTarget.style.display = 'none';
@@ -558,22 +595,32 @@ const ShareButton = () => {
                 <Bookmark className="h-4 w-4" />
                 Save
               </button> */}
-              {isRegistered ? (<><button className="bg-green-200 hover:bg-green-300 text-gray-700 px-4 py-2 md:px-6 rounded-lg font-medium transition-colors flex items-center gap-2 font-body text-sm md:text-base"> 
+              {isRegistered ? (<><button  className="bg-green-200 hover:bg-green-300 text-gray-700 px-4 py-2 md:px-6 rounded-lg font-medium transition-colors flex items-center gap-2 font-body text-sm md:text-base"> 
                 Registered
               </button>
               <div className="bg-green-50 text-green-700 p-2 rounded-lg flex items-center gap-2">
                   <CheckCircle className="h-5 w-5" />
                   <span className="font-body">You have successfully registered for this competition!</span>
                 </div></>):(
-              <button className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 md:px-6 rounded-lg font-medium transition-colors flex items-center gap-2 font-body text-sm md:text-base">
+              <button onClick={()=>{setshowPopup(true)}} className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 md:px-6 rounded-lg font-medium transition-colors flex items-center gap-2 font-body text-sm md:text-base">
                 Register Now
               </button>)}
             </div>
           </div>
         </div>
-
+        <PopupWindow
+                  showPopup={showPopup}
+                  setShowPopup={setshowPopup}
+                  competition={competition}
+                  formData={formData}
+                  setFormData={setFormData}
+                  handleRegistration={handleRegistration}
+              />
+                <ThanksCard
+                 teamName={formData.teamName || "Your Team"}
+                />
         {/* Main Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
+        {/* <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8"> */}
           {/* Left Column: Competition Details */}
           <div className="lg:col-span-2 order-1 lg:order-1">
             {/* Tabs */}
@@ -667,7 +714,7 @@ const ShareButton = () => {
           </div>
 
           {/* Right Column: Registration Form */}
-          <div className="lg:col-span-1 order-2 lg:order-2">
+          {/* <div className="lg:col-span-1 order-2 lg:order-2 sticky">
             <div className="bg-white rounded-xl shadow-sm p-4 md:p-6 sticky top-8">
               <div className="mb-4 md:mb-6">
                 <h2 className="text-lg md:text-xl text-primary-10 mb-2 font-heading">Prize Pool</h2>
@@ -691,7 +738,7 @@ const ShareButton = () => {
                 </div>
               </div>
 
-              {isRegistered ? (
+               {isRegistered ? (
                 <div className="bg-green-50 text-green-700 p-4 rounded-lg flex items-center gap-2">
                   <CheckCircle className="h-5 w-5" />
                   <span className="font-body">You have successfully registered for this competition!</span>
@@ -704,11 +751,10 @@ const ShareButton = () => {
                   formData={formData}
                   setFormData={setFormData}
                 />
-                
-              )}
+              )} 
             </div>
-          </div>
-        </div>
+          </div> */}
+        {/* </div> */}
       </div>
     </div>
   );

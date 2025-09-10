@@ -212,7 +212,7 @@ export default function Home() {
   return (
       <div
         // href={`/shop/${product.slug}`} 
-        className=" bg-white rounded-xl shadow-lg border border-gray-200 p-3 flex flex-col justify-between min-h-[320px] max-w-2sm mx-lg  transition-transform hover:scale-[1.02]"
+        className=" bg-white rounded-xl shadow-lg border border-gray-200 p-3 flex flex-col justify-between min-h-[310px] max-w-2sm mx-md  transition-transform hover:scale-[1.02]"
       >
         {/* Product Image */}
         <div className="flex justify-center items-center mb-2 mt-1">
@@ -239,8 +239,8 @@ export default function Home() {
         <div className="flex-1 flex flex-col justify-between w-full">
           <h3 className="text-base sm:text-lg text-primary-800 mb-1 leading-tight line-clamp-2 text-center font-heading">{product.name}</h3>
           {/* <p className="text-xs sm:text-sm text-primary-600 mb-2 line-clamp-2 text-center font-body">{product.description}</p> */}
-          <div className="flex items-center justify-between mt-auto gap-2 w-full">
-            <span className="text-primary-10  text-xs sm:text-sm  font-body">Coming Soon</span>
+          <div className="flex items-center flex-col ss:flex-row justify-between mt-auto gap-2 w-full">
+            <span className="text-primary-10 xs:max-ss:pl-4 text-xs sm:text-sm  font-body">Coming Soon</span>
             
             {isInCart ? (
               <div className="flex items-center space-x-1 bg-white rounded-lg shadow p-1">
@@ -517,14 +517,14 @@ export default function Home() {
       <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden transition-all duration-300">
         {/* Large banner image */}
         {image && (
-          <div className="relative h-[300px] md:h-[600px] bg-white">
+          <div className="relative h-[70vw] md:h-[30vw] bg-white">
             {/* Mobile Image - Shows only on mobile */}
             <Image
               src={mobileImage || image}
               alt={title}
               fill
               sizes="100vw"
-              className="object-contain block md:hidden"
+              className="object-fill block md:hidden"
               onError={(e) => {
                 e.currentTarget.style.display = 'none';
               }}
@@ -535,7 +535,7 @@ export default function Home() {
               alt={title}
               fill
               sizes="100vw"
-              className="object-contain hidden md:block"
+              className="object-fill hidden md:block"
               onError={(e) => {
                 e.currentTarget.style.display = 'none';
               }}
@@ -597,7 +597,7 @@ export default function Home() {
 
       {/* Featured Products Section */}
       <section className="pt-6 mt-4 md:pt-8 md:mt-8 pb-4 md:pb-10 bg-white">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-4 ">
           <h2 className="text-3xl md:text-5xl text-center mb-4 md:mb-8 text-primary-10 font-heading">Our Products</h2>
           
           {error.featuredProducts ? (
