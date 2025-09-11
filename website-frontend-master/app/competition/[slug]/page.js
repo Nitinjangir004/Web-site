@@ -222,7 +222,7 @@ useEffect(() => {
                 onChange={(e) => handleTeamMemberChange(index, 'name', e.target.value)}
                 disabled={index === 0}
                 className={`w-full text-black px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 font-body ${index === 0 ? 'bg-gray-100 cursor-not-allowed' : ''}`}
-                placeholder={index === 0 ? 'Team Leader (auto-filled)' : `Team Member ${index + 1} Name`}
+                placeholder={index === 0 ? 'Team Leader Name (auto-filled)' : `Team Member ${index + 1} Name`}
               />
               {formErrors[`member${index}_name`] && <p className="text-red-500 text-xs">{formErrors[`member${index}_name`]}</p>}
 
@@ -233,8 +233,8 @@ useEffect(() => {
                     value={member.email}
                     disabled={index === 0}
                     onChange={(e) => handleTeamMemberChange(index, 'email', e.target.value)}
-                    className="w-full text-black px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 font-body"
-                    placeholder={`Member ${index + 1} Email`}
+                    className={`w-full text-black px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 font-body ${index === 0 ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+                    placeholder={index === 0 ? `Team Member ${index + 1} Email (auto-filled)` : `Team Member ${index + 1} Email`}
                   />
                   {formErrors[`member${index}_email`] && <p className="text-red-500 text-xs">{formErrors[`member${index}_email`]}</p>}
 
@@ -243,8 +243,8 @@ useEffect(() => {
                     value={member.mobile}
                     disabled={index === 0}
                     onChange={(e) => handleTeamMemberChange(index, 'mobile', e.target.value)}
-                    className="w-full text-black px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 font-body"
-                    placeholder={`Member ${index + 1} Mobile`}
+                    className={`w-full text-black px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 font-body ${index === 0 ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+                    placeholder={index === 0 ? `Team Member ${index + 1} Mobile (auto-filled)` : `Team Member ${index + 1} Mobile`}
                   />
                   {formErrors[`member${index}_mobile`] && <p className="text-red-500 text-xs">{formErrors[`member${index}_mobile`]}</p>}
                 {/* </>
@@ -376,8 +376,7 @@ export default function CompetitionDetailPage() {
 
   const handleRegistration = async (data) => {
     try {
-      // const response = await fetch(`https://api.churanchacha.in/api/competitions/${competition.id}/register`, {
-      const response = await fetch(`http://localhost:7500/api/competitions/${competition.id}/register`, {
+       const response = await fetch(`https://api.churanchacha.in/api/competitions/${competition.id}/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -524,8 +523,8 @@ const ShareButton = () => {
   }
 
   return (
-    <div className="py-4 md:py-12">
-      <div className="container mx-auto px-4">
+    <div className="py-4 md:py-8">
+      <div className=" mx-auto px-4"> {/* remove container, from layout and this page */}
         {/* Back Button */}
         <Link
           href="/competition"
@@ -537,14 +536,14 @@ const ShareButton = () => {
 
         {/* Hero Section */}
         <div className="bg-white rounded-2xl shadow-lg overflow-hidden mb-6 md:mb-8">
-          <div className="relative h-[250px] md:h-[500px] bg-gray-100">
+          <div className="relative h-[90vw] md:h-[45vw] lg:h-[38vw] xl:h-[38vw] bg-gray-100">
             {/* Mobile Image - Shows only on mobile */}
             <Image
               src={competition.mobileImage || competition.image}
               alt={competition.title}
               fill
               sizes="100vw"
-              className="object-cover block md:hidden"
+              className="object-fill block md:hidden"
               priority
               onError={(e) => {
                 e.currentTarget.style.display = 'none';
@@ -556,7 +555,7 @@ const ShareButton = () => {
               alt={competition.title}
               fill
               sizes="100vw"
-              className="object-cover hidden md:block"
+              className="object-fill hidden md:block cover"
               priority
               onError={(e) => {
                 e.currentTarget.style.display = 'none';
@@ -583,6 +582,30 @@ const ShareButton = () => {
             <p className="text-base md:text-lg text-gray-700 mb-4 md:mb-6 font-body leading-relaxed">
               {competition.description}
             </p>
+
+            <div className="bg-white rounded-xl flex flex-col sm:flex-row gap-1 sm:gap-10">
+              <div className="mb-4 md:mb-6">
+                <h2 className="text-lg md:text-xl text-primary-10 mb-2 font-heading">Important Dates</h2>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-sm md:text-base text-gray-700 font-body">
+                    <Calendar className="h-4 w-4 md:h-5 md:w-5 text-primary-600" />
+                    <span>Starts: {new Date(competition.startDate).toLocaleDateString()}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm md:text-base text-gray-700 font-body">
+                    <Calendar className="h-4 w-4 md:h-5 md:w-5 text-primary-600" />
+                    <span>Ends: {new Date(competition.endDate).toLocaleDateString()}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mb-4 md:mb-6 ">
+                <h2 className="text-lg md:text-xl text-primary-10 mb-2 font-heading">Prize Pool</h2>
+                <div className="flex items-center gap-2 text-base md:text-lg text-gray-700 font-body">
+                  <Trophy className="h-4 w-4 md:h-5 md:w-5 text-yellow-500" />
+                  {competition.prize}
+                </div>
+              </div>
+              </div>
 
             <div className="flex flex-wrap gap-3 md:gap-4">
               <ShareButton />
@@ -620,7 +643,7 @@ const ShareButton = () => {
                  teamName={formData.teamName || "Your Team"}
                 />
         {/* Main Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
+        {/* <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8"> */}
           {/* Left Column: Competition Details */}
           <div className="lg:col-span-2 order-1 lg:order-1">
             {/* Tabs */}
@@ -712,49 +735,6 @@ const ShareButton = () => {
               </div>
             </div>
           </div>
-
-          {/* Right Column: Registration Form */}
-          <div className="lg:col-span-1 order-2 lg:order-2 sticky">
-            <div className="bg-white rounded-xl shadow-sm p-4 md:p-6 sticky top-8">
-              <div className="mb-4 md:mb-6">
-                <h2 className="text-lg md:text-xl text-primary-10 mb-2 font-heading">Prize Pool</h2>
-                <div className="flex items-center gap-2 text-base md:text-lg text-gray-700 font-body">
-                  <Trophy className="h-4 w-4 md:h-5 md:w-5 text-yellow-500" />
-                  {competition.prize}
-                </div>
-              </div>
-
-              <div className="mb-4 md:mb-6">
-                <h2 className="text-lg md:text-xl text-primary-10 mb-2 font-heading">Important Dates</h2>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-sm md:text-base text-gray-700 font-body">
-                    <Calendar className="h-4 w-4 md:h-5 md:w-5 text-primary-600" />
-                    <span>Starts: {new Date(competition.startDate).toLocaleDateString()}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm md:text-base text-gray-700 font-body">
-                    <Calendar className="h-4 w-4 md:h-5 md:w-5 text-primary-600" />
-                    <span>Ends: {new Date(competition.endDate).toLocaleDateString()}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* {isRegistered ? (
-                <div className="bg-green-50 text-green-700 p-4 rounded-lg flex items-center gap-2">
-                  <CheckCircle className="h-5 w-5" />
-                  <span className="font-body">You have successfully registered for this competition!</span>
-                </div>
-              ) : (
-                <CompetitionRegistrationForm
-                  competitionId={competition.id}
-                  competitionTitle={competition.title}
-                  onSubmit={handleRegistration}
-                  formData={formData}
-                  setFormData={setFormData}
-                />
-              )} */}
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );

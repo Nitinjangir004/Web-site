@@ -58,14 +58,14 @@ export default function CompetitionsPage() {
         <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden transition-all duration-300">
           {/* Large banner image */}
           {image && (
-            <div className="relative h-[300px] md:h-[600px] bg-gray-100">
+            <div className="relative h-[90vw] md:h-[45vw] lg:h-[38vw] xl:h-[38vw] bg-gray-100">
               {/* Mobile Image - Shows only on mobile */}
               <Image
                 src={mobileImage || image}
                 alt={title}
                 fill
                 sizes="100vw"
-                className="object-cover block md:hidden"
+                className="object-fill block md:hidden"
                 onError={(e) => {
                   e.currentTarget.style.display = 'none';
                 }}
@@ -76,7 +76,7 @@ export default function CompetitionsPage() {
                 alt={title}
                 fill
                 sizes="100vw"
-                className="object-cover hidden md:block"
+                className="object-fill hidden md:block"
                 onError={(e) => {
                   e.currentTarget.style.display = 'none';
                 }}
@@ -114,7 +114,7 @@ export default function CompetitionsPage() {
                 href={`/competition/${slug}`}
                 className="bg-primary-600 hover:bg-primary-700 text-white py-3 px-8 rounded-lg font-medium transition-colors inline-flex items-center gap-2 text-lg font-body"
               >
-                Register Now
+                View Details
                 <ChevronRight className="h-5 w-5" />
               </Link>
             </div>

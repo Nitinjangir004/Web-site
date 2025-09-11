@@ -212,10 +212,10 @@ export default function Home() {
   return (
       <div
         // href={`/shop/${product.slug}`} 
-        className=" bg-white rounded-xl shadow-lg border border-gray-200 p-3 flex flex-col justify-between min-h-[320px] max-w-2sm mx-lg  transition-transform hover:scale-[1.02]"
+        className=" bg-white rounded-xl shadow-lg border border-gray-200 p-3 flex flex-col justify-between min-h-[310px] w-sw mx-sm transition-transform hover:scale-[1.02]"
       >
         {/* Product Image */}
-        <div className="flex justify-center items-center mb-2 mt-1">
+        <div className="flex mx-sm justify-center items-center mb-2 mt-1">
           {product.image && !imageError ? (
             <div className="relative w-36 h-36 sm:w-44 sm:h-44 flex items-center justify-center">
         <Image
@@ -239,8 +239,8 @@ export default function Home() {
         <div className="flex-1 flex flex-col justify-between w-full">
           <h3 className="text-base sm:text-lg text-primary-800 mb-1 leading-tight line-clamp-2 text-center font-heading">{product.name}</h3>
           {/* <p className="text-xs sm:text-sm text-primary-600 mb-2 line-clamp-2 text-center font-body">{product.description}</p> */}
-          <div className="flex items-center justify-between mt-auto gap-2 w-full">
-            <span className="text-primary-10  text-xs sm:text-sm  font-body">Coming Soon</span>
+          <div className="flex items-center flex-col ss:flex-row justify-between mt-auto gap-2 w-full">
+            <span className="text-primary-10 xs:max-ss:pl-4 text-xs sm:text-sm  font-body">Coming Soon</span>
             
             {isInCart ? (
               <div className="flex items-center space-x-1 bg-white rounded-lg shadow p-1">
@@ -447,13 +447,13 @@ export default function Home() {
             
             return (
               <div key={`${index}-${isMobile ? 'mobile' : 'desktop'}`} className="carousel-slide-fullscreen w-full h-full">
-                <div className="relative w-full h-[50vh] md:h-[80vh]">
+                <div className="relative w-full h-[100vw] md:h-[53vw] lg:h-[47vw] xl:h-[42vw]">
                   <Image
                     src={imageSrc}
                     alt={`${image.alt} - ${isMobile ? 'Mobile' : 'Desktop'} Version`}
                     fill
                     sizes="100vw"
-                    className="object-cover"
+                    className="object-fill  "
                     priority={index === 0}
                     quality={90}
                     unoptimized={false}
@@ -517,14 +517,14 @@ export default function Home() {
       <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden transition-all duration-300">
         {/* Large banner image */}
         {image && (
-          <div className="relative h-[300px] md:h-[600px] bg-white">
+          <div className="relative h-[80vw] md:h-[45vw] lg:h-[38vw] xl:h-[30vw] bg-white">
             {/* Mobile Image - Shows only on mobile */}
             <Image
               src={mobileImage || image}
               alt={title}
               fill
               sizes="100vw"
-              className="object-contain block md:hidden"
+              className="object-fill block md:hidden"
               onError={(e) => {
                 e.currentTarget.style.display = 'none';
               }}
@@ -535,7 +535,7 @@ export default function Home() {
               alt={title}
               fill
               sizes="100vw"
-              className="object-contain hidden md:block"
+              className="object-fill hidden md:block"
               onError={(e) => {
                 e.currentTarget.style.display = 'none';
               }}
@@ -593,11 +593,9 @@ export default function Home() {
         <HeroCarousel />
       </div>
 
-    
-
       {/* Featured Products Section */}
       <section className="pt-6 mt-4 md:pt-8 md:mt-8 pb-4 md:pb-10 bg-white">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-4 ">
           <h2 className="text-3xl md:text-5xl text-center mb-4 md:mb-8 text-primary-10 font-heading">Our Products</h2>
           
           {error.featuredProducts ? (
@@ -730,18 +728,18 @@ export default function Home() {
       {/* </section> */}
 
       {/* Brand Commitments Marquee Section */}
-      <section className="py-8 md:py-12 ">
+      <section className="py-8 md:py-12 container mx-auto ">
         {/* Title - Can have padding */}
         <div className="w-full px-4 md:px-6 lg:px-8 mb-6">
           <h2 className="text-3xl md:text-5xl text-center mb-4 md:mb-6 text-primary-10 font-heading">Churan Chacha Ke Commitments</h2>
         </div>
         
         {/* Full-width Commitments Images Row */}
-        <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] px-2 my-4 py-16">
-          <div className="flex justify-center gap-1 md:gap-2 lg:gap-3">
+        <div className=" relative  px-2 my-4 py-16">
+          <div className="flex grid grid-cols-3 md:grid-cols-6 justify-center mx-auto md:gap-2 lg:gap-0 ">
             {/* Commitment 1 */}
-            <div className="flex flex-col items-center flex-1 max-w-[120px] md:max-w-[140px] lg:max-w-[160px]">
-              <div className="relative w-full aspect-square mb-2">
+            <div className="flex flex-col items-center mx-auto flex-1 max-w-[120px] md:max-w-[140px] lg:max-w-[160px]">
+              <div className="relative w-full aspect-square mb-2 lg:mb-4 lg:mt-4">
                 <Image
                   src="/commitments/1.png"
                   alt="Quality Assurance Commitment"
@@ -756,7 +754,7 @@ export default function Home() {
             </div>
 
             {/* Commitment 2 */}
-            <div className="flex flex-col items-center flex-1 max-w-[120px] md:max-w-[140px] lg:max-w-[160px]">
+            <div className="flex flex-col items-center mx-auto flex-1 max-w-[120px] md:max-w-[140px] lg:max-w-[160px]">
               <div className="relative w-full aspect-square mb-2">
                 <Image
                   src="/commitments/2.png"
@@ -772,7 +770,7 @@ export default function Home() {
             </div>
 
             {/* Commitment 3 */}
-            <div className="flex flex-col items-center flex-1 max-w-[120px] md:max-w-[140px] lg:max-w-[160px]">
+            <div className="flex flex-col mx-auto items-center flex-1 max-w-[120px] md:max-w-[140px] lg:max-w-[160px]">
               <div className="relative w-full aspect-square mb-2">
                 <Image
                   src="/commitments/3.png"
@@ -788,7 +786,7 @@ export default function Home() {
             </div>
 
             {/* Commitment 4 */}
-            <div className="flex flex-col items-center flex-1 max-w-[120px] md:max-w-[140px] lg:max-w-[160px]">
+            <div className="flex flex-col mx-auto items-center flex-1 max-w-[120px] md:max-w-[140px] lg:max-w-[160px]">
               <div className="relative w-full aspect-square mb-2">
                 <Image
                   src="/commitments/4.png"
@@ -804,8 +802,8 @@ export default function Home() {
             </div>
 
             {/* Commitment 5 */}
-            <div className="flex flex-col items-center flex-1 max-w-[120px] md:max-w-[140px] lg:max-w-[160px]">
-              <div className="relative w-full aspect-square mb-2">
+            <div className="flex flex-col mx-auto items-center flex-1 max-w-[120px] md:max-w-[140px] lg:max-w-[160px]">
+              <div className="relative w-full aspect-square mb-2 lg:mb-4 lg:mt-4">
                 <Image
                   src="/commitments/5.png"
                   alt="Fast Delivery Commitment"
@@ -820,7 +818,7 @@ export default function Home() {
             </div>
 
             {/* Commitment 6 */}
-            <div className="flex flex-col items-center flex-1 max-w-[120px] md:max-w-[140px] lg:max-w-[160px]">
+            <div className="flex flex-col mx-auto items-center flex-1 max-w-[120px] md:max-w-[140px] lg:max-w-[160px]">
               <div className="relative w-full aspect-square mb-2">
                 <Image
                   src="/commitments/6.png"

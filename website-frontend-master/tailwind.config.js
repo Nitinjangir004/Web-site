@@ -27,6 +27,11 @@ module.exports = {
         'heading': ['Comic Sans MS', 'var(--font-kalam)', 'Kalam', 'cursive'],
         'body': ['var(--font-montserrat)', 'Montserrat', 'sans-serif'],
       },
+      screens: {
+        'xxs': '240px',
+        'xs': '300px',
+        'ss': '400px',
+      },
     },
   },
   plugins: [],

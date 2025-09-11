@@ -33,9 +33,10 @@ export default function RootLayout({ children }) {
       >
         <ReduxProvider>
           <Header />
-          <main className="flex-grow container mx-auto p-4 mt-[60px] lg:mt-[96px]">
+          <main className="flex-grow  justify-center p-4 mt-[60px] lg:mt-[96px]">
             {children}
           </main>
+          
           <Footer />
         </ReduxProvider>
       </body>
