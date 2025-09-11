@@ -675,12 +675,16 @@ export default function Home() {
                     <h3 className="text-lg font-medium text-gray-800 mb-2 text-center line-clamp-1 font-heading">
                       {comic.title || comic.name || 'Untitled Comic'}
                     </h3>
-                    <Link 
+                    <div className="bg-primary-500 hover:bg-primary-600 text-white w-full text-center mt-2 py-2 rounded-lg font-medium transition-colors font-body"
+                    >
+                       Read Comic
+                    </div>
+                    {/* <Link 
                       href={`/toons-and-tells/comic/${comic.slug || 'default'}`} 
                       className="bg-primary-500 hover:bg-primary-600 text-white w-full text-center mt-2 py-2 rounded-lg font-medium transition-colors font-body"
                     >
                       Read Comic
-                    </Link>
+                    </Link> */}
                   </div>
                 );
               })}
