@@ -376,8 +376,7 @@ export default function CompetitionDetailPage() {
 
   const handleRegistration = async (data) => {
     try {
-      // const response = await fetch(`https://api.churanchacha.in/api/competitions/${competition.id}/register`, {
-      const response = await fetch(`http://localhost:7500/api/competitions/${competition.id}/register`, {
+       const response = await fetch(`https://api.churanchacha.in/api/competitions/${competition.id}/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -525,7 +524,7 @@ const ShareButton = () => {
 
   return (
     <div className="py-4 md:py-8">
-      <div className="container mx-auto px-4">
+      <div className=" mx-auto px-4"> {/* remove container, from layout and this page */}
         {/* Back Button */}
         <Link
           href="/competition"
@@ -537,7 +536,7 @@ const ShareButton = () => {
 
         {/* Hero Section */}
         <div className="bg-white rounded-2xl shadow-lg overflow-hidden mb-6 md:mb-8">
-          <div className="relative h-[50vw] md:h-[28vw] bg-gray-100">
+          <div className="relative h-[90vw] md:h-[45vw] lg:h-[38vw] xl:h-[38vw] bg-gray-100">
             {/* Mobile Image - Shows only on mobile */}
             <Image
               src={competition.mobileImage || competition.image}
@@ -583,6 +582,30 @@ const ShareButton = () => {
             <p className="text-base md:text-lg text-gray-700 mb-4 md:mb-6 font-body leading-relaxed">
               {competition.description}
             </p>
+
+            <div className="bg-white rounded-xl flex flex-col sm:flex-row gap-1 sm:gap-10">
+              <div className="mb-4 md:mb-6">
+                <h2 className="text-lg md:text-xl text-primary-10 mb-2 font-heading">Important Dates</h2>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-sm md:text-base text-gray-700 font-body">
+                    <Calendar className="h-4 w-4 md:h-5 md:w-5 text-primary-600" />
+                    <span>Starts: {new Date(competition.startDate).toLocaleDateString()}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm md:text-base text-gray-700 font-body">
+                    <Calendar className="h-4 w-4 md:h-5 md:w-5 text-primary-600" />
+                    <span>Ends: {new Date(competition.endDate).toLocaleDateString()}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mb-4 md:mb-6 ">
+                <h2 className="text-lg md:text-xl text-primary-10 mb-2 font-heading">Prize Pool</h2>
+                <div className="flex items-center gap-2 text-base md:text-lg text-gray-700 font-body">
+                  <Trophy className="h-4 w-4 md:h-5 md:w-5 text-yellow-500" />
+                  {competition.prize}
+                </div>
+              </div>
+              </div>
 
             <div className="flex flex-wrap gap-3 md:gap-4">
               <ShareButton />
