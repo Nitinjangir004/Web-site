@@ -735,49 +735,6 @@ const ShareButton = () => {
               </div>
             </div>
           </div>
-
-          {/* Right Column: Registration Form */}
-          {/* <div className="lg:col-span-1 order-2 lg:order-2 sticky">
-            <div className="bg-white rounded-xl shadow-sm p-4 md:p-6 sticky top-8">
-              <div className="mb-4 md:mb-6">
-                <h2 className="text-lg md:text-xl text-primary-10 mb-2 font-heading">Prize Pool</h2>
-                <div className="flex items-center gap-2 text-base md:text-lg text-gray-700 font-body">
-                  <Trophy className="h-4 w-4 md:h-5 md:w-5 text-yellow-500" />
-                  {competition.prize}
-                </div>
-              </div>
-
-              <div className="mb-4 md:mb-6">
-                <h2 className="text-lg md:text-xl text-primary-10 mb-2 font-heading">Important Dates</h2>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-sm md:text-base text-gray-700 font-body">
-                    <Calendar className="h-4 w-4 md:h-5 md:w-5 text-primary-600" />
-                    <span>Starts: {new Date(competition.startDate).toLocaleDateString()}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm md:text-base text-gray-700 font-body">
-                    <Calendar className="h-4 w-4 md:h-5 md:w-5 text-primary-600" />
-                    <span>Ends: {new Date(competition.endDate).toLocaleDateString()}</span>
-                  </div>
-                </div>
-              </div>
-
-               {isRegistered ? (
-                <div className="bg-green-50 text-green-700 p-4 rounded-lg flex items-center gap-2">
-                  <CheckCircle className="h-5 w-5" />
-                  <span className="font-body">You have successfully registered for this competition!</span>
-                </div>
-              ) : (
-                <CompetitionRegistrationForm
-                  competitionId={competition.id}
-                  competitionTitle={competition.title}
-                  onSubmit={handleRegistration}
-                  formData={formData}
-                  setFormData={setFormData}
-                />
-              )} 
-            </div>
-          </div> */}
-        {/* </div> */}
       </div>
     </div>
   );
